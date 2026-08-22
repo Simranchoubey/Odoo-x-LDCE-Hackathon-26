@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Edit2, MapPin, Mail, Phone, Globe, Camera, Check, X } from 'lucide-react';
+import { Edit2, Mail, Camera, Check, X, AlertCircle } from 'lucide-react';
 import TopBar from '../components/TopBar';
 import TripCard from '../components/TripCard';
 import { PrimaryButton, SecondaryButton } from '../components/Button';
@@ -16,17 +16,23 @@ export default function Profile() {
   const [editMode, setEditMode] = useState(false);
   const [editForm, setEditForm] = useState({ ...user });
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const handleSave = async () => {
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 600));
-    updateUser(editForm);
+    setSaveError('');
+    const result = await updateUser({ name: editForm.name, bio: editForm.bio });
     setSaving(false);
-    setEditMode(false);
+    if (result.success) {
+      setEditMode(false);
+    } else {
+      setSaveError(result.error || 'Failed to save changes');
+    }
   };
 
   const handleCancel = () => {
     setEditForm({ ...user });
+    setSaveError('');
     setEditMode(false);
   };
 
@@ -44,11 +50,11 @@ export default function Profile() {
               {/* Avatar */}
               <div className="relative shrink-0">
                 <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[var(--color-primary)]/20 bg-[var(--color-primary-fixed)]">
-                  {user?.avatar ? (
-                    <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-[var(--color-primary)]">
-                      {user?.firstName?.[0]}
+                      {user?.name?.[0]}
                     </div>
                   )}
                 </div>
@@ -63,51 +69,45 @@ export default function Profile() {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 {editMode ? (
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { field: 'firstName', label: 'First Name' },
-                      { field: 'lastName', label: 'Last Name' },
-                      { field: 'email', label: 'Email', type: 'email' },
-                      { field: 'phone', label: 'Phone' },
-                      { field: 'city', label: 'City' },
-                      { field: 'country', label: 'Country' },
-                    ].map(({ field, label, type = 'text' }) => (
-                      <div key={field}>
-                        <label className="block text-xs font-semibold text-[var(--color-on-surface-variant)] uppercase tracking-wider mb-1">
-                          {label}
-                        </label>
-                        <input
-                          type={type}
-                          value={editForm[field] || ''}
-                          onChange={(e) => setEditForm((p) => ({ ...p, [field]: e.target.value }))}
-                          className="w-full bg-[var(--color-surface-container)] border border-[var(--color-outline-variant)]/40 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 transition-all"
-                        />
-                      </div>
-                    ))}
-                    <div className="col-span-2">
+                  <div className="flex flex-col gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-[var(--color-on-surface-variant)] uppercase tracking-wider mb-1">
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        value={editForm.name || ''}
+                        onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))}
+                        className="w-full bg-[var(--color-surface-container)] border border-[var(--color-outline-variant)]/40 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 transition-all"
+                      />
+                    </div>
+                    <div>
                       <label className="block text-xs font-semibold text-[var(--color-on-surface-variant)] uppercase tracking-wider mb-1">
                         Bio
                       </label>
                       <textarea
-                        value={editForm.additionalInfo || ''}
-                        onChange={(e) => setEditForm((p) => ({ ...p, additionalInfo: e.target.value }))}
+                        value={editForm.bio || ''}
+                        onChange={(e) => setEditForm((p) => ({ ...p, bio: e.target.value }))}
                         rows={3}
                         className="w-full bg-[var(--color-surface-container)] border border-[var(--color-outline-variant)]/40 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 resize-none transition-all"
                       />
                     </div>
+                    {saveError && (
+                      <div className="flex items-center gap-2 bg-[var(--color-error-container)] text-[var(--color-error)] rounded-xl px-3 py-2 text-xs">
+                        <AlertCircle size={14} /> {saveError}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div>
                     <h1 className="text-2xl font-black text-[var(--color-on-surface)] mb-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                      {user?.firstName} {user?.lastName}
+                      {user?.name}
                     </h1>
                     <div className="flex flex-wrap gap-4 mb-3">
                       <InfoItem icon={<Mail size={14} />} text={user?.email} />
-                      <InfoItem icon={<Phone size={14} />} text={user?.phone} />
-                      <InfoItem icon={<MapPin size={14} />} text={`${user?.city}, ${user?.country}`} />
                     </div>
-                    {user?.additionalInfo && (
-                      <p className="text-sm text-[var(--color-on-surface-variant)] line-clamp-2">{user.additionalInfo}</p>
+                    {user?.bio && (
+                      <p className="text-sm text-[var(--color-on-surface-variant)] line-clamp-2">{user.bio}</p>
                     )}
 
                     {/* Stats */}

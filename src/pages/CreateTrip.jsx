@@ -7,6 +7,18 @@ import { useTrips } from '../context/TripContext';
 import { api } from '../api/client';
 import { useCurrency } from '../context/CurrencyContext';
 
+function Field({ id, label, error, children }) {
+  return (
+    <div>
+      <label htmlFor={id} className="block text-xs font-semibold text-[var(--color-on-surface-variant)] uppercase tracking-wider mb-1.5">
+        {label}
+      </label>
+      {children}
+      {error && <p className="text-xs text-[var(--color-error)] mt-1">{error}</p>}
+    </div>
+  );
+}
+
 export default function CreateTrip() {
   const { createTrip } = useTrips();
   const { fmt } = useCurrency();
@@ -83,16 +95,6 @@ export default function CreateTrip() {
     if (errors.destination) setErrors((p) => ({ ...p, destination: '' }));
   };
 
-  const Field = ({ id, label, error, children }) => (
-    <div>
-      <label htmlFor={id} className="block text-xs font-semibold text-[var(--color-on-surface-variant)] uppercase tracking-wider mb-1.5">
-        {label}
-      </label>
-      {children}
-      {error && <p className="text-xs text-[var(--color-error)] mt-1">{error}</p>}
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
       <TopBar />
@@ -153,7 +155,7 @@ export default function CreateTrip() {
                           <img src={city.imageUrl || FALLBACK_IMAGE} onError={(e) => { e.target.src = FALLBACK_IMAGE; }} alt={city.name} className="w-10 h-10 rounded-xl object-cover shrink-0" />
                           <div>
                             <p className="text-sm font-semibold text-[var(--color-on-surface)]">{city.name}</p>
-                            <p className="text-xs text-[var(--color-on-surface-variant)]">{city.country} · {city.continent}</p>
+                            <p className="text-xs text-[var(--color-on-surface-variant)]">{city.country} · {city.region}</p>
                           </div>
                         </button>
                       )})}

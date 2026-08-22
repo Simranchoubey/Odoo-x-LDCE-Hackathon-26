@@ -79,7 +79,7 @@ export default function Dashboard() {
               ✈ Your Next Adventure Awaits
             </p>
             <h1 className="text-3xl md:text-5xl font-black text-white leading-tight mb-3" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-              Hello, {user?.firstName || 'Traveler'}! 👋
+              Hello, {user?.name || 'Traveler'}! 👋
             </h1>
             <p className="text-white/80 text-base md:text-lg max-w-lg">
               You have <strong className="text-white">{tripsByStatus.upcoming.length} upcoming trips</strong>. Where will you go next?

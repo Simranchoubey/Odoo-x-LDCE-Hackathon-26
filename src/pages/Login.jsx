@@ -147,7 +147,7 @@ export default function Login() {
 
         {/* Demo hint */}
         <p className="text-center text-xs text-[var(--color-on-surface-variant)] mt-4 opacity-60">
-          Demo: any username + password (min 6 chars)
+          Demo: demo@globetrotter.app / demo1234
         </p>
       </div>
     </div>

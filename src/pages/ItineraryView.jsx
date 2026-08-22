@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronUp, ArrowDown, Frown, Edit, Wallet } from 'lucide-react';
+import { ChevronDown, ChevronUp, ArrowDown, Frown, Edit, Wallet, AlertTriangle } from 'lucide-react';
 import TopBar from '../components/TopBar';
 import SearchFilterBar from '../components/SearchFilterBar';
 import { useTrips } from '../context/TripContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { SecondaryButton, PrimaryButton } from '../components/Button';
+import { api } from '../api/client';
 
 const SORT_OPTIONS = [
   { value: 'day', label: 'By Day' },
@@ -24,6 +25,12 @@ export default function ItineraryView() {
   });
   const [search, setSearch] = useState('');
   const [sortValue, setSortValue] = useState('day');
+  const [budget, setBudget] = useState(null);
+
+  useEffect(() => {
+    if (!id) return;
+    api(`/trips/${id}/budget`).then(setBudget).catch(() => {});
+  }, [id]);
 
   if (!trip) {
     return (
@@ -40,10 +47,11 @@ export default function ItineraryView() {
     );
   }
 
-  // Calculate budget summary
-  const totalBudget = trip.sections.reduce((sum, s) => sum + (s.budget || 0), 0) || trip.budget?.total || 0;
-  const totalSpent = trip.sections.reduce((sum, s) => sum + s.activities.reduce((a, act) => a + (act.expense || 0), 0), 0) || trip.budget?.spent || 0;
-  const remaining = totalBudget - totalSpent;
+  // Budget summary comes from GET /trips/:id/budget (category totals, over-budget days);
+  // fall back to the trip's own totals until that request resolves.
+  const totalBudget = budget?.totalBudget ?? trip.budget?.total ?? 0;
+  const totalSpent = budget?.spent ?? trip.budget?.spent ?? 0;
+  const remaining = budget?.remaining ?? (totalBudget - totalSpent);
   const pct = totalBudget > 0 ? Math.min((totalSpent / totalBudget) * 100, 100) : 0;
 
   const toggleSection = (id) => setOpenSections((p) => ({ ...p, [id]: !p[id] }));
@@ -211,6 +219,19 @@ export default function ItineraryView() {
                   </div>
                 </div>
 
+                {/* Over-budget alert */}
+                {budget?.overBudgetDays?.length > 0 && (
+                  <div className="mb-4 flex items-start gap-2 bg-[var(--color-error-container)] text-[var(--color-error)] rounded-xl px-3 py-2.5 text-xs">
+                    <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+                    <div>
+                      <p className="font-semibold mb-0.5">
+                        {budget.overBudgetDays.length} day{budget.overBudgetDays.length > 1 ? 's' : ''} over budget
+                      </p>
+                      <p className="opacity-80">{budget.overBudgetDays.map(formatDate).join(', ')}</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-3">
                   <BudgetRow label="Total Budget" value={fmt(totalBudget)} />
                   <BudgetRow label="Spent" value={fmt(totalSpent)} highlight />
@@ -222,6 +243,25 @@ export default function ItineraryView() {
                     />
                   </div>
                 </div>
+
+                {/* Category breakdown */}
+                {budget && (
+                  <div className="mt-4 pt-4 border-t border-[var(--color-surface-container)]">
+                    <p className="text-xs font-semibold text-[var(--color-on-surface-variant)] uppercase tracking-wider mb-2">By Category</p>
+                    {Object.values(budget.byCategory).every((v) => v === 0) ? (
+                      <p className="text-xs text-[var(--color-on-surface-variant)]/60 italic">No categorized spend yet</p>
+                    ) : (
+                      Object.entries(budget.byCategory)
+                        .filter(([, amount]) => amount > 0)
+                        .map(([category, amount]) => (
+                          <div key={category} className="flex items-center justify-between text-xs mb-2">
+                            <span className="text-[var(--color-on-surface-variant)] capitalize">{category}</span>
+                            <span className="font-semibold text-[var(--color-on-surface)]">{fmt(amount)}</span>
+                          </div>
+                        ))
+                    )}
+                  </div>
+                )}
 
                 {/* Per section breakdown */}
                 {trip.sections.length > 0 && (

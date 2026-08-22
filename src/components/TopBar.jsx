@@ -134,16 +134,16 @@ export default function TopBar() {
               aria-label="Profile menu"
             >
               <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-[var(--color-primary)]/20 bg-[var(--color-primary-fixed)]">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-sm font-bold text-[var(--color-primary)]">
-                    {user?.firstName?.[0]}
+                    {user?.name?.[0]}
                   </div>
                 )}
               </div>
               <span className="hidden lg:block text-sm font-medium text-[var(--color-on-surface)]">
-                {user?.firstName}
+                {user?.name}
               </span>
               <ChevronDown size={14} className={`hidden lg:block text-[var(--color-on-surface-variant)] transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -151,7 +151,7 @@ export default function TopBar() {
             {profileOpen && (
               <div className="absolute right-0 top-full mt-2 w-52 bg-[var(--color-surface-container-lowest)] rounded-2xl shadow-lg border border-[var(--color-outline-variant)]/50 overflow-hidden z-50">
                 <div className="p-3 border-b border-[var(--color-surface-container)]">
-                  <p className="text-sm font-semibold text-[var(--color-on-surface)]">{user?.firstName} {user?.lastName}</p>
+                  <p className="text-sm font-semibold text-[var(--color-on-surface)]">{user?.name}</p>
                   <p className="text-xs text-[var(--color-on-surface-variant)] truncate">{user?.email}</p>
                 </div>
                 <div className="p-1.5">
