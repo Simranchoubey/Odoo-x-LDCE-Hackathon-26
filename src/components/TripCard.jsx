@@ -28,6 +28,7 @@ export default function TripCard({ trip, variant = 'default', onView }) {
             <img
               src={image}
               alt={name}
+              onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80'; }}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
             />
@@ -66,6 +67,7 @@ export default function TripCard({ trip, variant = 'default', onView }) {
             <img
               src={image}
               alt={name}
+              onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80'; }}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
             />

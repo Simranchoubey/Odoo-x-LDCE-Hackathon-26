@@ -37,12 +37,14 @@ const formatDuration = (mins) => {
 
 function ActivityRow({ activity, onAdd, added }) {
   const { fmt } = useCurrency();
+  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80';
   return (
     <div className="group flex items-center gap-4 bg-[var(--color-surface-container-lowest)] rounded-2xl p-4 border border-[var(--color-outline-variant)]/30 card-shadow hover:card-shadow-hover transition-all duration-200">
       <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden">
         <img
-          src={activity.imageUrl}
+          src={activity.imageUrl || FALLBACK_IMAGE}
           alt={activity.name}
+          onError={(e) => { e.target.src = FALLBACK_IMAGE; }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />

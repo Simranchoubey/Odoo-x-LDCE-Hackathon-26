@@ -141,20 +141,22 @@ export default function CreateTrip() {
                   />
                   {showCityDropdown && filteredCities.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--color-surface-container-lowest)] border border-[var(--color-outline-variant)]/40 rounded-2xl shadow-xl z-30 max-h-64 overflow-y-auto">
-                      {filteredCities.slice(0, 8).map((city) => (
+                      {filteredCities.slice(0, 8).map((city) => {
+                        const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80';
+                        return (
                         <button
                           key={city.id}
                           type="button"
                           onClick={() => handleCitySelect(city)}
                           className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[var(--color-surface-container)] transition-all text-left"
                         >
-                          <img src={city.imageUrl} alt={city.name} className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                          <img src={city.imageUrl || FALLBACK_IMAGE} onError={(e) => { e.target.src = FALLBACK_IMAGE; }} alt={city.name} className="w-10 h-10 rounded-xl object-cover shrink-0" />
                           <div>
                             <p className="text-sm font-semibold text-[var(--color-on-surface)]">{city.name}</p>
                             <p className="text-xs text-[var(--color-on-surface-variant)]">{city.country} · {city.continent}</p>
                           </div>
                         </button>
-                      ))}
+                      )})}
                     </div>
                   )}
                 </div>
@@ -197,6 +199,7 @@ export default function CreateTrip() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {suggestions.map((activity) => {
+                const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80';
                 const selected = selectedActivities.includes(activity.id);
                 return (
                   <button
@@ -212,8 +215,9 @@ export default function CreateTrip() {
                   >
                     <div className="h-40 relative overflow-hidden">
                       <img
-                        src={activity.imageUrl}
+                        src={activity.imageUrl || FALLBACK_IMAGE}
                         alt={activity.name}
+                        onError={(e) => { e.target.src = FALLBACK_IMAGE; }}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />

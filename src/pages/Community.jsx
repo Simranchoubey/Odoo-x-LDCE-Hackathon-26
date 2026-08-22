@@ -156,7 +156,7 @@ function PostCard({ post, onLike }) {
       {/* Header */}
       <div className="flex items-start gap-3 mb-4">
         <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-[var(--color-surface-container)]">
-          <img src={post.userAvatar} alt={post.userName} className="w-full h-full object-cover" />
+          <img src={post.userAvatar || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=100&q=80'} onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=100&q=80'; }} alt={post.userName} className="w-full h-full object-cover" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-[var(--color-on-surface)]">{post.userName}</p>
@@ -184,7 +184,7 @@ function PostCard({ post, onLike }) {
       {/* Image */}
       {post.image && (
         <div className="rounded-xl overflow-hidden mb-4 max-h-64">
-          <img src={post.image} alt="Post" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />
+          <img src={post.image} alt="Post" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80'; }} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />
         </div>
       )}
 
