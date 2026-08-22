@@ -230,6 +230,7 @@ export default function Dashboard() {
 function CityCard({ city }) {
   const navigate = useNavigate();
   const { fmt } = useCurrency();
+  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80';
   return (
     <article
       onClick={() => navigate('/search')}
@@ -237,8 +238,9 @@ function CityCard({ city }) {
     >
       <div className="h-36 overflow-hidden relative">
         <img
-          src={city.imageUrl}
+          src={city.imageUrl || FALLBACK_IMAGE}
           alt={city.name}
+          onError={(e) => { e.target.src = FALLBACK_IMAGE; }}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
         />

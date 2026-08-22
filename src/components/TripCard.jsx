@@ -28,6 +28,7 @@ export default function TripCard({ trip, variant = 'default', onView }) {
             <img
               src={image}
               alt={name}
+              onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80'; }}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
             />
@@ -36,7 +37,7 @@ export default function TripCard({ trip, variant = 'default', onView }) {
           )}
         </div>
         <div className="p-4">
-          <p className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider mb-1">
+          <p className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider mb-1 truncate">
             {destination}
           </p>
           <h3 className="text-sm font-bold text-[var(--color-on-surface)] mb-3 line-clamp-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
@@ -66,6 +67,7 @@ export default function TripCard({ trip, variant = 'default', onView }) {
             <img
               src={image}
               alt={name}
+              onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80'; }}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
             />
@@ -84,9 +86,9 @@ export default function TripCard({ trip, variant = 'default', onView }) {
               </span>
             )}
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-[var(--color-on-surface-variant)] mb-1.5">
-            <MapPin size={12} />
-            <span>{destination}</span>
+          <div className="flex items-center gap-1.5 text-xs text-[var(--color-on-surface-variant)] mb-1.5 min-w-0">
+            <MapPin size={12} className="shrink-0" />
+            <span className="truncate">{destination}</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-[var(--color-on-surface-variant)] mb-2">
             <Calendar size={12} />

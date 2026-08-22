@@ -207,7 +207,7 @@ export const communityPosts = [
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sofia&backgroundColor=ffd5dc',
     destination: 'Amalfi Coast, Italy',
     content: 'Just returned from the most breathtaking road trip along the Amalfi Coast! 🌊 The views from Ravello are absolutely surreal — I could have sat there for days just staring at the Mediterranean. Pro tip: rent a scooter instead of driving a car; the narrow roads are perfect for it!',
-    image: 'https://images.unsplash.com/photo-1534445538923-ab38e5c4e769?w=800&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Amalfi_Coast_%28Positano%29.jpg/960px-Amalfi_Coast_%28Positano%29.jpg',
     likes: 142,
     comments: 23,
     timestamp: '2024-08-18T10:30:00',
