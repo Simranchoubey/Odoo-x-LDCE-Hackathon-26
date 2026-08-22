@@ -5,6 +5,7 @@ import { TripProvider } from './context/TripContext';
 // Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
+import SharedTrip from './pages/SharedTrip';
 import Dashboard from './pages/Dashboard';
 import CreateTrip from './pages/CreateTrip';
 import ItineraryBuilder from './pages/ItineraryBuilder';
@@ -27,6 +28,7 @@ function AppRoutes() {
       {/* Public */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/shared/:slug" element={<SharedTrip />} />
 
       {/* Protected */}
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

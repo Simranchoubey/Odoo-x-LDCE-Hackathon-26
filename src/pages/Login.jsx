@@ -28,11 +28,10 @@ export default function Login() {
     setErrors({});
     setLoginError('');
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800)); // Simulate API call
-    const result = login(form);
+    const result = await login(form);
     setLoading(false);
     if (result.success) navigate('/');
-    else setLoginError('Invalid credentials. Try any username/password.');
+    else setLoginError(result.error || 'Invalid credentials.');
   };
 
   const handleChange = (field) => (e) => {
