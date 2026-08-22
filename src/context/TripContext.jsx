@@ -39,7 +39,7 @@ export function TripProvider({ children }) {
         },
       });
       for (const activity of tripData.selectedActivities || []) {
-        await api(`/trips/${trip.id}/stops/${stop.id}/items`, {
+        await api(`/trips/stops/${stop.id}/items`, {
           method: 'POST',
           body: {
             activityId: activity.id,
