@@ -111,6 +111,50 @@ npm run dev                    # http://localhost:5173 (proxies /api -> :4000)
 
 ---
 
+## 🌱 Seeded Data
+
+Running `npm run db:seed` fills the database with everything needed to explore the app immediately:
+
+**Demo user**
+- Email: `demo@globetrotter.app` · Password: `demo1234`
+- Name: *Demo Traveler* — owns all 6 sample trips below
+
+**20 cities** (catalog for city search & stops)
+
+| Region | Cities |
+|---|---|
+| Europe | Paris, Santorini, Barcelona, Interlaken, Seville, Tromsø, Rome, Bordeaux |
+| Asia | Tokyo, Bali, Kyoto, Cappadocia, Agra |
+| Africa | Marrakech, Cape Town, Merzouga |
+| Americas | New York, Manaus |
+| Oceania | Queenstown, Cairns |
+
+Each city carries `country`, `region`, a description, a **cost index** (avg $/day) and a **popularity rating** used by the City Search screen.
+
+**24 activities** (catalog per city, e.g.)
+
+- Adventure: Hot Air Balloon Ride (Cappadocia), Paragliding over Alps (Interlaken), Bungee Jump – Kawarau Bridge (Queenstown), Sahara Desert Camel Trek (Merzouga)
+- Culture/Heritage: Eiffel Tower Skip-the-line & Louvre Museum (Paris), Colosseum Underground Tour (Rome), Fushimi Inari Shrine (Kyoto), Taj Mahal Sunrise Visit (Agra)
+- Food: Sushi Making Class (Tokyo), Vineyard Wine Tasting (Bordeaux), Jemaa el-Fnaa Food Tour (Marrakech)
+- Nature/Water/Nights: Amazon Jungle Trek (Manaus), Northern Lights Viewing (Tromsø), Scuba Diving – Great Barrier Reef (Cairns)
+
+Each activity has a category, cost ($), duration (minutes), difficulty (Easy / Moderate / Challenging), and description.
+
+**6 demo trips** (owned by the demo user, with stops + itinerary items)
+
+| Trip | Destination | Dates | Status | Budget |
+|---|---|---|---|---|
+| NYC Winter Break | New York, USA | Aug 1–7, 2026 | ongoing | $3,500 |
+| Santorini Honeymoon | Santorini, Greece | Jun 10–17, 2026 | completed | $5,000 |
+| Paris Getaway | Paris, France | Sep 15–20, 2026 | completed | $2,400 |
+| Kyoto Retreat | Kyoto, Japan | Oct 11–14, 2026 | upcoming | $1,800 |
+| Bali Beach Escape | Bali, Indonesia | Nov 20–28, 2026 | upcoming | $2,000 |
+| Morocco Souk Adventure | Marrakech, Morocco | Dec 5–10, 2026 | planning | $1,500 |
+
+Trips include real itinerary items (e.g. Fushimi Inari Shrine, Central Park Bike Tour, Monkey Forest Sanctuary) so the Itinerary View, Budget Breakdown, and Calendar screens show live data on first login. The seed script is idempotent — re-running it won't duplicate cities or trips.
+
+---
+
 ## 📁 Project Structure
 
 ```
