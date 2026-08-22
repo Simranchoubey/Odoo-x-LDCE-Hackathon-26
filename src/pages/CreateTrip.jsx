@@ -151,7 +151,7 @@ export default function CreateTrip() {
                           <img src={city.imageUrl} alt={city.name} className="w-10 h-10 rounded-xl object-cover shrink-0" />
                           <div>
                             <p className="text-sm font-semibold text-[var(--color-on-surface)]">{city.name}</p>
-                            <p className="text-xs text-[var(--color-on-surface-variant)]">{city.country} · {city.continent}</p>
+                            <p className="text-xs text-[var(--color-on-surface-variant)]">{city.country} · {city.region}</p>
                           </div>
                         </button>
                       ))}
