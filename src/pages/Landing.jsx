@@ -122,7 +122,7 @@ export default function Landing() {
               to="/login"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/30 text-white font-bold text-base hover:bg-white/20 transition-all duration-300"
             >
-              Try the Demo Account
+             Register
             </Link>
           </div>
           <div className="flex gap-8 mt-14 text-white">

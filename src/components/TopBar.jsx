@@ -91,18 +91,20 @@ export default function TopBar() {
           {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Admin link */}
-          <NavLink
-            to="/admin"
-            className={({ isActive }) =>
-              `hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-                isActive ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]' : 'text-[var(--color-on-surface-variant)] hover:bg-[var(--color-surface-container)]'
-              }`
-            }
-          >
-            <Shield size={14} />
-            Admin
-          </NavLink>
+          {/* Admin link (admins only) */}
+          {user?.role === 'admin' && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                `hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                  isActive ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]' : 'text-[var(--color-on-surface-variant)] hover:bg-[var(--color-surface-container)]'
+                }`
+              }
+            >
+              <Shield size={14} />
+              Admin
+            </NavLink>
+          )}
 
           {/* Currency selector */}
           <select
@@ -161,7 +163,7 @@ export default function TopBar() {
                     <User size={15} /> My Profile
                   </Link>
                   <Link
-                    to="/admin"
+                    to="/profile"
                     onClick={() => setProfileOpen(false)}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-[var(--color-on-surface-variant)] hover:bg-[var(--color-surface-container)] hover:text-[var(--color-on-surface)] transition-all"
                   >
@@ -208,15 +210,17 @@ export default function TopBar() {
                   {label}
                 </NavLink>
               ))}
-              <NavLink
-                to="/admin"
-                onClick={() => setMenuOpen(false)}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]' : 'text-[var(--color-on-surface-variant)] hover:bg-[var(--color-surface-container)]'}`
-                }
-              >
-                <Shield size={18} /> Admin
-              </NavLink>
+              {user?.role === 'admin' && (
+                <NavLink
+                  to="/admin"
+                  onClick={() => setMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]' : 'text-[var(--color-on-surface-variant)] hover:bg-[var(--color-surface-container)]'}`
+                  }
+                >
+                  <Shield size={18} /> Admin
+                </NavLink>
+              )}
               <NavLink
                 to="/profile"
                 onClick={() => setMenuOpen(false)}

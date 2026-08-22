@@ -24,6 +24,12 @@ function ProtectedRoute({ children }) {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
+function AdminRoute({ children }) {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return user?.role === 'admin' ? children : <Navigate to="/dashboard" replace />;
+}
+
 function AppRoutes() {
   return (
     <Routes>
@@ -43,7 +49,7 @@ function AppRoutes() {
       <Route path="/search" element={<ProtectedRoute><ActivitySearch /></ProtectedRoute>} />
       <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
       <Route path="/calendar" element={<ProtectedRoute><CalendarView /></ProtectedRoute>} />
-      <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+      <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

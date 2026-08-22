@@ -81,30 +81,54 @@ Cascade deletes: deleting a trip removes its stops and items; unique constraints
 
 ## 💻 Getting Started Locally
 
-**Prerequisites:** Node 20+, PostgreSQL running locally.
+### Option A — PostgreSQL via Docker (recommended)
+
+**Prerequisites:** Node 20+, [Docker Desktop](https://www.docker.com/products/docker-desktop/) (no local Postgres install needed).
 
 ```bash
 git clone https://github.com/Simranchoubey/Odoo-x-LDCE-Hackathon-26.git
 cd Odoo-x-LDCE-Hackathon-26
 
-# ---------- Database ----------
-createdb globetrotter          # or: psql -U postgres -c "CREATE DATABASE globetrotter;"
+# ---------- 1. Start PostgreSQL in Docker ----------
+docker compose up -d --wait        # pulls postgres:16-alpine, waits until healthy
+#   (or: cd server && npm run docker:up)
+#   stop later with:  docker compose down        (data persists in a named volume)
+#   wipe data:        docker compose down -v
 
-# ---------- Backend ----------
+# ---------- 2. Backend ----------
+cd server
+npm install
+cp .env.example .env               # defaults match docker-compose.yml; edit if you changed credentials
+npx prisma migrate dev             # creates tables
+npm run db:seed                    # seeds cities, activities, 8 users + 22 sample trips (8 public)
+npm run dev                        # API on http://localhost:4000
+
+# ---------- 3. Frontend (new terminal) ----------
+cd ..
+npm install
+npm run dev                        # http://localhost:5173 (proxies /api -> :4000)
+```
+
+Login with the demo account below — all seeded data is loaded by step 2's `db:seed`.
+
+### Option B — Existing local PostgreSQL install
+
+```bash
+createdb globetrotter              # or: psql -U postgres -c "CREATE DATABASE globetrotter;"
+
 cd server
 npm install
 # create .env:
 #   DATABASE_URL="postgresql://postgres:<YOUR_PASSWORD>@localhost:5432/globetrotter"
 #   JWT_SECRET="<any-long-random-string>"
 #   PORT=4000
-npx prisma migrate dev         # creates tables
-npm run db:seed                # seeds cities, activities, 8 users + 22 sample trips (8 public)
-npm run dev                    # API on http://localhost:4000
+npx prisma migrate dev             # creates tables
+npm run db:seed
+npm run dev                        # API on http://localhost:4000
 
-# ---------- Frontend (new terminal) ----------
 cd ..
 npm install
-npm run dev                    # http://localhost:5173 (proxies /api -> :4000)
+npm run dev                        # http://localhost:5173
 ```
 
 **Demo account:** `demo@globetrotter.app` / `demo1234` — comes with 6 seeded trips. All seeded users share the same password (`demo1234`).

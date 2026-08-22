@@ -7,12 +7,13 @@ import { requireAuth } from '../middleware/auth.js';
 const router = Router();
 
 const sign = (user) =>
-  jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
 const publicUser = (u) => ({
   id: u.id,
   email: u.email,
   name: u.name,
+  role: u.role,
   avatarUrl: u.avatarUrl,
   bio: u.bio,
   languagePref: u.languagePref,

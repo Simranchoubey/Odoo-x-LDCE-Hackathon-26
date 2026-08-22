@@ -125,9 +125,9 @@ async function main() {
   }
   console.log(`Seeded ${activities.length} activities`);
 
-  // [email, name, bio, trips[]]
+  // [email, name, bio, role, trips[]]
   const users = [
-    ['demo@globetrotter.app', 'Demo Traveler', 'Exploring the world one itinerary at a time.', [
+    ['demo@globetrotter.app', 'Demo Traveler', 'Exploring the world one itinerary at a time.', 'admin', [
       ['Paris Getaway', 'A romantic 5-day escape to the City of Light, exploring museums, cafes, and iconic landmarks.', '2026-09-15', '2026-09-20', 'completed', 2400, 'USD', true, 'paris-getaway-2026',
         [['Flight & Arrival', 'Paris|France', '2026-09-15', '2026-09-17', 800, [
           ['CDG Airport Transfer', null, '2026-09-15', '08:00'],
@@ -154,7 +154,7 @@ async function main() {
         [['Oia & Sunset Views', 'Santorini|Greece', '2026-06-10', '2026-06-14', 2000, []]]],
       ['Morocco Souk Adventure', 'Five days of medina exploration, desert day trips, and authentic Moroccan cuisine.', '2026-12-05', '2026-12-10', 'planning', 1500, 'USD', false, null, []],
     ]],
-    ['aria.winters@example.com', 'Aria Winters', 'Solo backpacker. 23 countries and counting. Slow travel advocate.', [
+    ['aria.winters@example.com', 'Aria Winters', 'Solo backpacker. 23 countries and counting. Slow travel advocate.', 'user', [
       ['Southeast Asia Loop', 'Six weeks across Thailand, Vietnam, and Indonesia on a backpacker budget.', '2027-01-05', '2027-02-16', 'planning', 2800, 'USD', true, 'sea-backpacker-loop',
         [['Bangkok Kickoff', 'Bali|Indonesia', '2027-01-05', '2027-01-09', 350, [
           ['Ubud Rice Terraces Walk', null, '2027-01-06', '07:00'],
@@ -164,7 +164,7 @@ async function main() {
           ['Sushi Making Class', null, '2026-04-03', '11:00'],
           ['Neon District Night Walk', 'Evening stroll through Shibuya and Shinjuku.', '2026-04-03', '19:00']]]]],
     ]],
-    ['marco.bellini@example.com', 'Marco Bellini', 'Food-first traveler. If there is no market tour on the plan, I am not going.', [
+    ['marco.bellini@example.com', 'Marco Bellini', 'Food-first traveler. If there is no market tour on the plan, I am not going.', 'user', [
       ['Iberian Tapas Trail', 'Barcelona to Seville eating our way through Spain.', '2026-09-03', '2026-09-12', 'upcoming', 2600, 'EUR', true, 'iberian-tapas-trail',
         [['Barcelona Bite', 'Barcelona|Spain', '2026-09-03', '2026-09-06', 700, [
           ['Gaudí Architecture Walk', 'Sagrada Familia, Park Güell, and Casa Batlló in one morning.', '2026-09-04', '09:30'],
@@ -175,7 +175,7 @@ async function main() {
         [['Vineyard Circuit', 'Bordeaux|France', '2026-05-15', '2026-05-18', 500, [
           ['Vineyard Wine Tasting Tour', null, '2026-05-16', '10:00']]]]],
     ]],
-    ['priya.sharma@example.com', 'Priya Sharma', 'Adventure junkie from Mumbai. Mountains over beaches, always.', [
+    ['priya.sharma@example.com', 'Priya Sharma', 'Adventure junkie from Mumbai. Mountains over beaches, always.', 'user', [
       ['Swiss Alps Adventure', 'Paragliding, hiking, and lake dips across Interlaken.', '2026-07-10', '2026-07-18', 'completed', 4200, 'CHF', true, 'swiss-alps-adventure',
         [['Interlaken Base', 'Interlaken|Switzerland', '2026-07-10', '2026-07-15', 1800, [
           ['Paragliding over Alps', null, '2026-07-11', '09:00'],
@@ -187,7 +187,7 @@ async function main() {
         [['Adventure Central', 'Queenstown|New Zealand', '2027-02-08', '2027-02-14', 2500, [
           ['Bungee Jump - Kawarau Bridge', null, '2027-02-09', '10:00']]]]],
     ]],
-    ['tom.okafor@example.com', 'Tom Okafor', 'Photographer chasing light. Currently documenting desert landscapes.', [
+    ['tom.okafor@example.com', 'Tom Okafor', 'Photographer chasing light. Currently documenting desert landscapes.', 'user', [
       ['Sahara Expedition', 'Marrakech to Merzouga — dunes, stars, and silence.', '2026-12-28', '2027-01-04', 'planning', 2100, 'USD', true, 'sahara-expedition',
         [['Marrakech Medina', 'Marrakech|Morocco', '2026-12-28', '2026-12-31', 450, [
           ['Jemaa el-Fnaa Food Tour', null, '2026-12-29', '18:30']]],
@@ -197,7 +197,7 @@ async function main() {
         [['Golden Circle', 'Tromsø|Norway', '2026-11-10', '2026-11-14', 600, [
           ['Northern Lights Viewing', null, '2026-11-11', '21:00']]]]],
     ]],
-    ['elena.petrova@example.com', 'Elena Petrova', 'History teacher. I plan trips around ruins and museums.', [
+    ['elena.petrova@example.com', 'Elena Petrova', 'History teacher. I plan trips around ruins and museums.', 'user', [
       ['Classical Italy Grand Tour', 'Rome, Florence, Venice — ten days of ancient history and Renaissance art.', '2026-09-20', '2026-09-30', 'upcoming', 3800, 'EUR', true, 'classical-italy-tour',
         [['Rome Antics', 'Rome|Italy', '2026-09-20', '2026-09-25', 1200, [
           ['Colosseum Underground Tour', null, '2026-09-21', '09:00'],
@@ -205,7 +205,7 @@ async function main() {
       ['Greek Islands Ferry Hop', 'Athens, Santorini, Naxos via ferry.', '2026-05-01', '2026-05-12', 'completed', 3100, 'EUR', false, null,
         [['Caldera Views', 'Santorini|Greece', '2026-05-04', '2026-05-08', 1400, []]]],
     ]],
-    ['jack.thompson@example.com', 'Jack Thompson', 'Diver. Reef checklist: Great Barrier done, Red Sea next.', [
+    ['jack.thompson@example.com', 'Jack Thompson', 'Diver. Reef checklist: Great Barrier done, Red Sea next.', 'user', [
       ['Barrier Reef Liveaboard', 'Four nights on a dive boat off Cairns.', '2026-08-20', '2026-08-26', 'ongoing', 3400, 'AUD', true, 'barrier-reef-liveaboard',
         [['Cairns Departure', 'Cairns|Australia', '2026-08-20', '2026-08-25', 2200, [
           ['Scuba Diving Great Barrier Reef', null, '2026-08-21', '08:00'],
@@ -214,7 +214,7 @@ async function main() {
         [['Göreme Valley', 'Cappadocia|Turkey', '2026-07-05', '2026-07-09', 600, [
           ['Hot Air Balloon Ride', null, '2026-07-06', '05:00']]]]],
     ]],
-    ['sofia.mendes@example.com', 'Sofia Mendes', 'Remote designer. Trips must have good wifi and better coffee.', [
+    ['sofia.mendes@example.com', 'Sofia Mendes', 'Remote designer. Trips must have good wifi and better coffee.', 'user', [
       ['Lisbon Digital Nomad Month', 'Working from Lisbon with weekend escapes.', '2026-06-01', '2026-06-30', 'completed', 2900, 'EUR', false, null, []],
       ['Morocco Remote Retreat', 'A month split between Marrakech and the coast.', '2027-03-01', '2027-03-28', 'planning', 2400, 'USD', true, 'morocco-remote-retreat',
         [['Marrakech Settle-in', 'Marrakech|Morocco', '2027-03-01', '2027-03-08', 500, [
@@ -224,12 +224,12 @@ async function main() {
 
   let userCount = 0;
   let tripCount = 0;
-  for (const [email, name, bio, tripDefs] of users) {
+  for (const [email, name, bio, role, tripDefs] of users) {
     const passwordHash = await bcrypt.hash('demo1234', 10);
     const user = await prisma.user.upsert({
       where: { email },
-      update: { name, bio },
-      create: { email, passwordHash, name, bio },
+      update: { name, bio, role },
+      create: { email, passwordHash, name, bio, role },
     });
     userCount++;
 

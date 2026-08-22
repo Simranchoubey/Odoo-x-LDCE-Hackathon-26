@@ -7,7 +7,9 @@
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "docker:up": "docker compose up -d --wait",
+    "docker:down": "docker compose down"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

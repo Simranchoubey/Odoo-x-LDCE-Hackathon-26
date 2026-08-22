@@ -6,6 +6,7 @@ import citiesRoutes from './routes/cities.js';
 import activitiesRoutes from './routes/activities.js';
 import tripsRoutes from './routes/trips.js';
 import publicRoutes from './routes/public.js';
+import adminRoutes from './routes/admin.js';
 import { requireAuth } from './middleware/auth.js';
 import { errorHandler, notFound } from './middleware/error.js';
 
@@ -25,6 +26,7 @@ app.use('/api/cities', citiesRoutes);
 app.use('/api/activities', activitiesRoutes);
 app.use('/api/trips', requireAuth, tripsRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use('/api', notFound);
 app.use(errorHandler);
