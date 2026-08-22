@@ -19,7 +19,7 @@ export const activities = [
     category: 'Food & Culture',
     city: 'Tokyo',
     country: 'Japan',
-    image: 'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=800&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Sushi_platter%2C_Nikko%2C_Japan.jpg/960px-Sushi_platter%2C_Nikko%2C_Japan.jpg',
     description: 'Learn to roll perfect sushi from a master chef in a traditional Tokyo kitchen.',
     duration: '2 hours',
     cost: 95,

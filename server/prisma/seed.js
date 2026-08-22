@@ -29,7 +29,7 @@ const cities = [
 // name, category, cityKey, cost, durationMins, difficulty, description, image
 const activities = [
   ['Hot Air Balloon Ride', 'Adventure', 'Cappadocia|Turkey', 180, 180, 'Easy', 'Float above fairy chimneys and volcanic landscapes at sunrise for an unforgettable experience.', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80'],
-  ['Sushi Making Class', 'Food & Culture', 'Tokyo|Japan', 95, 120, 'Easy', 'Learn to roll perfect sushi from a master chef in a traditional Tokyo kitchen.', 'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=800&q=80'],
+  ['Sushi Making Class', 'Food & Culture', 'Tokyo|Japan', 95, 120, 'Easy', 'Learn to roll perfect sushi from a master chef in a traditional Tokyo kitchen.', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Sushi_platter%2C_Nikko%2C_Japan.jpg/960px-Sushi_platter%2C_Nikko%2C_Japan.jpg'],
   ['Paragliding over Alps', 'Adventure', 'Interlaken|Switzerland', 220, 90, 'Moderate', 'Tandem paragliding with stunning views of snow-capped peaks and turquoise lakes.', 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&q=80'],
   ['Flamenco Dance Show', 'Culture', 'Seville|Spain', 65, 90, 'Easy', 'Authentic flamenco performance with live guitar in an intimate tablao setting.', 'https://images.unsplash.com/photo-1547153760-18fc86324498?w=800&q=80'],
   ['Amazon Jungle Trek', 'Nature', 'Manaus|Brazil', 450, 4320, 'Challenging', 'Multi-day guided trek through the Amazon rainforest with expert naturalist guides.', 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80'],
@@ -108,7 +108,7 @@ async function main() {
   for (const [name, country, region, description, costIndex, popularity, imageUrl] of cities) {
     const city = await prisma.city.upsert({
       where: { name_country: { name, country } },
-      update: {},
+      update: { description, costIndex, popularity, imageUrl },
       create: { name, country, region, description, costIndex, popularity, imageUrl },
     });
     cityIds[`${name}|${country}`] = city.id;
@@ -116,8 +116,13 @@ async function main() {
   console.log(`Seeded ${cities.length} cities`);
 
   for (const [name, category, cityKey, cost, durationMins, difficulty, description, imageUrl] of activities) {
-    const exists = await prisma.activity.findFirst({ where: { name, cityId: cityIds[cityKey] } });
-    if (!exists) {
+    const existing = await prisma.activity.findFirst({ where: { name, cityId: cityIds[cityKey] } });
+    if (existing) {
+      await prisma.activity.update({
+        where: { id: existing.id },
+        data: { category, cost, durationMins, difficulty, description, imageUrl },
+      });
+    } else {
       await prisma.activity.create({
         data: { name, category, cityId: cityIds[cityKey], cost, durationMins, difficulty, description, imageUrl },
       });

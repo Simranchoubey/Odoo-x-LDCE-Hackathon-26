@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { GripVertical, Trash2, Calendar, ChevronDown, ChevronUp, Wallet } from 'lucide-react';
 import { useState } from 'react';
 import { useCurrency } from '../context/CurrencyContext';
@@ -41,7 +40,7 @@ export default function SectionCard({
           value={section.title || ''}
           onChange={(e) => handleField('title', e.target.value)}
           placeholder={`Section ${index + 1}`}
-          className="flex-1 bg-transparent text-sm font-bold text-[var(--color-on-surface)] placeholder:text-[var(--color-on-surface-variant)]/40 focus:outline-none"
+          className="flex-1 min-w-0 bg-transparent text-sm font-bold text-[var(--color-on-surface)] placeholder:text-[var(--color-on-surface-variant)]/40 focus:outline-none"
           style={{ fontFamily: 'Montserrat, sans-serif' }}
         />
 
