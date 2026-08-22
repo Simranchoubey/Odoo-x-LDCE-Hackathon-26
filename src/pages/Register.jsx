@@ -8,16 +8,13 @@ const FIELDS = [
   { id: 'firstName', label: 'First Name', type: 'text', placeholder: 'Arjun', required: true, col: 1 },
   { id: 'lastName', label: 'Last Name', type: 'text', placeholder: 'Mehta', required: true, col: 2 },
   { id: 'email', label: 'Email Address', type: 'email', placeholder: 'arjun@email.com', required: true, col: 1 },
-  { id: 'phone', label: 'Phone Number', type: 'tel', placeholder: '+91 98765 43210', required: false, col: 2 },
-  { id: 'city', label: 'City', type: 'text', placeholder: 'Mumbai', required: false, col: 1 },
-  { id: 'country', label: 'Country', type: 'text', placeholder: 'India', required: false, col: 2 },
 ];
 
 export default function Register() {
   const { login, register } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', phone: '', city: '', country: '', additionalInfo: '', password: '', confirmPassword: '',
+    firstName: '', lastName: '', email: '', password: '', confirmPassword: '',
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -101,17 +98,18 @@ export default function Register() {
             {/* Two-column fields */}
             <div className="grid grid-cols-2 gap-3 mb-3">
               {FIELDS.map(({ id, label, type, placeholder, required }) => (
-                <FormField
-                  key={id}
-                  id={id}
-                  label={label}
-                  type={type}
-                  placeholder={placeholder}
-                  required={required}
-                  value={form[id]}
-                  onChange={handleChange(id)}
-                  error={errors[id]}
-                />
+                <div key={id} className={id === 'email' ? 'col-span-2' : undefined}>
+                  <FormField
+                    id={id}
+                    label={label}
+                    type={type}
+                    placeholder={placeholder}
+                    required={required}
+                    value={form[id]}
+                    onChange={handleChange(id)}
+                    error={errors[id]}
+                  />
+                </div>
               ))}
             </div>
 
@@ -139,22 +137,7 @@ export default function Register() {
               />
             </div>
 
-            {/* Additional info */}
-            <div className="mb-6">
-              <label htmlFor="additionalInfo" className="block text-xs font-semibold text-[var(--color-on-surface-variant)] uppercase tracking-wider mb-1.5">
-                Additional Information
-              </label>
-              <textarea
-                id="additionalInfo"
-                value={form.additionalInfo}
-                onChange={handleChange('additionalInfo')}
-                placeholder="Tell us about your travel style, favourite destinations, bucket list..."
-                rows={3}
-                className="w-full bg-[var(--color-surface-container)] border border-[var(--color-outline-variant)]/40 rounded-xl px-4 py-3 text-sm text-[var(--color-on-surface)] placeholder:text-[var(--color-on-surface-variant)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 resize-none transition-all"
-              />
-            </div>
-
-            <PrimaryButton type="submit" size="lg" loading={loading} className="w-full">
+            <PrimaryButton type="submit" size="lg" loading={loading} className="w-full mt-3">
               {loading ? 'Creating Account...' : 'Create Account'}
             </PrimaryButton>
           </form>

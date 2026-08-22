@@ -57,12 +57,12 @@ export function AuthProvider({ children }) {
   };
 
   const updateUser = async (updates) => {
-    setUser((prev) => ({ ...prev, ...updates }));
     try {
       const updated = await api('/users/me', { method: 'PATCH', body: updates });
       setUser(updated);
-    } catch {
-      // keep optimistic state
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
     }
   };
 
