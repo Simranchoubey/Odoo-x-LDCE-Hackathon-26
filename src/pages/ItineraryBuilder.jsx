@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, ChevronRight, MapPin, Frown } from 'lucide-react';
 import TopBar from '../components/TopBar';
@@ -55,21 +54,21 @@ export default function ItineraryBuilder() {
         <div className="max-w-3xl mx-auto px-5 lg:px-8 py-10">
           {/* Page Header */}
           <div className="mb-8">
-            <div className="flex items-center gap-2 text-sm text-[var(--color-on-surface-variant)] mb-2">
-              <span>My Trips</span>
-              <ChevronRight size={14} />
-              <span>{trip.name}</span>
-              <ChevronRight size={14} />
-              <span className="text-[var(--color-primary)] font-medium">Build Itinerary</span>
+            <div className="flex items-center gap-2 text-sm text-[var(--color-on-surface-variant)] mb-2 min-w-0">
+              <span className="shrink-0">My Trips</span>
+              <ChevronRight size={14} className="shrink-0" />
+              <span className="truncate">{trip.name}</span>
+              <ChevronRight size={14} className="shrink-0" />
+              <span className="text-[var(--color-primary)] font-medium shrink-0">Build Itinerary</span>
             </div>
             <div className="flex items-start justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <h1 className="text-3xl font-black text-[var(--color-on-surface)]" style={{ fontFamily: 'Montserrat, sans-serif' }}>
                   Build Itinerary
                 </h1>
-                <div className="flex items-center gap-2 mt-2">
-                  <MapPin size={14} className="text-[var(--color-primary)]" />
-                  <span className="text-sm text-[var(--color-on-surface-variant)]">{trip.destination}</span>
+                <div className="flex items-center gap-2 mt-2 min-w-0">
+                  <MapPin size={14} className="text-[var(--color-primary)] shrink-0" />
+                  <span className="text-sm text-[var(--color-on-surface-variant)] truncate">{trip.destination}</span>
                   {trip.startDate && (
                     <>
                       <span className="text-[var(--color-outline-variant)]">·</span>

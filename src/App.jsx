@@ -1,10 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { TripProvider } from './context/TripContext';
+import { CurrencyProvider } from './context/CurrencyContext';
 
 // Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Landing from './pages/Landing';
+import SharedTrip from './pages/SharedTrip';
 import Dashboard from './pages/Dashboard';
 import CreateTrip from './pages/CreateTrip';
 import ItineraryBuilder from './pages/ItineraryBuilder';
@@ -21,16 +24,23 @@ function ProtectedRoute({ children }) {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
+function AdminRoute({ children }) {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return user?.role === 'admin' ? children : <Navigate to="/dashboard" replace />;
+}
+
 function AppRoutes() {
   return (
     <Routes>
       {/* Public */}
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/shared/:slug" element={<SharedTrip />} />
 
       {/* Protected */}
-      <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/dashboard" element={<Navigate to="/" replace />} />
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/trips/new" element={<ProtectedRoute><CreateTrip /></ProtectedRoute>} />
       <Route path="/trips/:id/build" element={<ProtectedRoute><ItineraryBuilder /></ProtectedRoute>} />
       <Route path="/trips/:id/itinerary" element={<ProtectedRoute><ItineraryView /></ProtectedRoute>} />
@@ -39,7 +49,7 @@ function AppRoutes() {
       <Route path="/search" element={<ProtectedRoute><ActivitySearch /></ProtectedRoute>} />
       <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
       <Route path="/calendar" element={<ProtectedRoute><CalendarView /></ProtectedRoute>} />
-      <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+      <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -49,12 +59,14 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <TripProvider>
-          <AppRoutes />
-        </TripProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <CurrencyProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <TripProvider>
+            <AppRoutes />
+          </TripProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </CurrencyProvider>
   );
 }

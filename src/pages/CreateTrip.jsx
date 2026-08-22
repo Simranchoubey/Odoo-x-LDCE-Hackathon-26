@@ -1,15 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Calendar, Check, Search, ChevronRight, Plane } from 'lucide-react';
 import TopBar from '../components/TopBar';
 import { PrimaryButton, SecondaryButton } from '../components/Button';
 import { useTrips } from '../context/TripContext';
-import { cities } from '../data/cities';
-import { activities } from '../data/activities';
+import { api } from '../api/client';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function CreateTrip() {
   const { createTrip } = useTrips();
+  const { fmt } = useCurrency();
   const navigate = useNavigate();
+
+  const [cities, setCities] = useState([]);
+  const [activities, setActivities] = useState([]);
+
+  useEffect(() => {
+    api('/cities').then(setCities).catch(() => {});
+    api('/activities').then(setActivities).catch(() => {});
+  }, []);
 
   const [form, setForm] = useState({
     name: '',
@@ -41,20 +50,24 @@ export default function CreateTrip() {
     return errs;
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
-    const trip = createTrip({
-      name: form.name,
-      destination: form.destination,
-      cityId: form.cityId,
-      startDate: form.startDate,
-      endDate: form.endDate,
-      image: cities.find((c) => c.id === form.cityId)?.image || null,
-      selectedActivities,
-    });
-    navigate(`/trips/${trip.id}/build`);
+    try {
+      const trip = await createTrip({
+        name: form.name,
+        destination: form.destination,
+        cityId: form.cityId,
+        startDate: form.startDate,
+        endDate: form.endDate,
+        image: cities.find((c) => c.id === form.cityId)?.imageUrl || null,
+        selectedActivities: activities.filter((a) => selectedActivities.includes(a.id)),
+      });
+      navigate(`/trips/${trip.id}/build`);
+    } catch (err) {
+      setErrors({ name: err.message });
+    }
   };
 
   const toggleActivity = (id) => {
@@ -135,7 +148,7 @@ export default function CreateTrip() {
                           onClick={() => handleCitySelect(city)}
                           className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[var(--color-surface-container)] transition-all text-left"
                         >
-                          <img src={city.image} alt={city.name} className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                          <img src={city.imageUrl} alt={city.name} className="w-10 h-10 rounded-xl object-cover shrink-0" />
                           <div>
                             <p className="text-sm font-semibold text-[var(--color-on-surface)]">{city.name}</p>
                             <p className="text-xs text-[var(--color-on-surface-variant)]">{city.country} · {city.continent}</p>
@@ -199,7 +212,7 @@ export default function CreateTrip() {
                   >
                     <div className="h-40 relative overflow-hidden">
                       <img
-                        src={activity.image}
+                        src={activity.imageUrl}
                         alt={activity.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
@@ -212,12 +225,12 @@ export default function CreateTrip() {
                       )}
                       <div className="absolute bottom-0 left-0 right-0 p-3">
                         <p className="text-white font-bold text-sm leading-tight" style={{ fontFamily: 'Montserrat, sans-serif' }}>{activity.name}</p>
-                        <p className="text-white/70 text-xs">{activity.city}, {activity.country}</p>
+                        <p className="text-white/70 text-xs">{activity.city?.name}, {activity.city?.country}</p>
                       </div>
                     </div>
                     <div className="bg-[var(--color-surface-container-lowest)] p-3 flex items-center justify-between">
                       <span className="text-xs font-medium text-[var(--color-on-surface-variant)]">
-                        {activity.duration} · ${activity.cost}
+                        {activity.durationMins >= 60 ? `${Math.round(activity.durationMins / 60)}h` : `${activity.durationMins}m`} · {fmt(activity.cost)}
                       </span>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         selected ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]' : 'bg-[var(--color-surface-container)] text-[var(--color-on-surface-variant)]'

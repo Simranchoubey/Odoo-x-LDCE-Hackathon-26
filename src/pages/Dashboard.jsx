@@ -6,7 +6,8 @@ import SearchFilterBar from '../components/SearchFilterBar';
 import TripCard from '../components/TripCard';
 import { useAuth } from '../context/AuthContext';
 import { useTrips } from '../context/TripContext';
-import { cities } from '../data/cities';
+import { useCurrency } from '../context/CurrencyContext';
+import { api } from '../api/client';
 
 const HERO_IMAGES = [
   'https://images.unsplash.com/photo-1500835556837-99ac94a94552?w=1600&q=80',
@@ -40,6 +41,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [heroIdx, setHeroIdx] = useState(0);
+  const [cities, setCities] = useState([]);
+
+  useEffect(() => {
+    api('/cities').then(setCities).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 800);
@@ -51,8 +57,7 @@ export default function Dashboard() {
     return () => clearInterval(t);
   }, []);
 
-  const topCities = cities.slice(0, 5);
-  const prevTrips = tripsByStatus.completed.slice(0, 4);
+  const topCities = cities.slice(0, 5);  const prevTrips = tripsByStatus.completed.slice(0, 4);
 
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
@@ -224,6 +229,7 @@ export default function Dashboard() {
 
 function CityCard({ city }) {
   const navigate = useNavigate();
+  const { fmt } = useCurrency();
   return (
     <article
       onClick={() => navigate('/search')}
@@ -231,7 +237,7 @@ function CityCard({ city }) {
     >
       <div className="h-36 overflow-hidden relative">
         <img
-          src={city.image}
+          src={city.imageUrl}
           alt={city.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
@@ -241,18 +247,18 @@ function CityCard({ city }) {
           <h3 className="text-sm font-bold text-white" style={{ fontFamily: 'Montserrat, sans-serif' }}>{city.name}</h3>
           <p className="text-xs text-white/80">{city.country}</p>
         </div>
-        <div className="absolute top-2 right-2 flex gap-1">
-          {city.tags.slice(0, 1).map((tag) => (
-            <span key={tag} className="text-xs px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white rounded-full font-medium">
-              {tag}
+        {city.region && (
+          <div className="absolute top-2 right-2 flex gap-1">
+            <span className="text-xs px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white rounded-full font-medium">
+              {city.region}
             </span>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
       <div className="p-3">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-[var(--color-on-surface-variant)]">~${city.avgCostPerDay}/day</span>
-          <span className="text-xs font-semibold text-amber-500">★ {city.rating}</span>
+          <span className="text-xs text-[var(--color-on-surface-variant)]">~{fmt(city.costIndex)}/day</span>
+          <span className="text-xs font-semibold text-amber-500">★ {Number(city.popularity).toFixed(1)}</span>
         </div>
       </div>
     </article>

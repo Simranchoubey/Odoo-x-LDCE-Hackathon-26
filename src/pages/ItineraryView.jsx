@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronUp, DollarSign, ArrowDown, Frown, Edit } from 'lucide-react';
+import { ChevronDown, ChevronUp, ArrowDown, Frown, Edit, Wallet } from 'lucide-react';
 import TopBar from '../components/TopBar';
 import SearchFilterBar from '../components/SearchFilterBar';
 import { useTrips } from '../context/TripContext';
+import { useCurrency } from '../context/CurrencyContext';
 import { SecondaryButton, PrimaryButton } from '../components/Button';
 
 const SORT_OPTIONS = [
@@ -15,6 +16,7 @@ export default function ItineraryView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getTrip } = useTrips();
+  const { fmt, currency } = useCurrency();
   const trip = getTrip(id);
   const [openSections, setOpenSections] = useState(() => {
     if (!trip) return {};
@@ -131,7 +133,7 @@ export default function ItineraryView() {
                         <div className="flex items-center gap-3">
                           {section.budget > 0 && (
                             <span className="text-sm font-semibold text-[var(--color-primary)]">
-                              Budget: ${section.budget}
+                              Budget: {fmt(section.budget)}
                             </span>
                           )}
                           {openSections[section.id] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
@@ -167,8 +169,7 @@ export default function ItineraryView() {
                                     </div>
                                     {activity.expense > 0 && (
                                       <div className="flex items-center gap-1 text-sm font-bold text-[var(--color-primary)] shrink-0">
-                                        <DollarSign size={14} />
-                                        {activity.expense}
+                                        {fmt(activity.expense)}
                                       </div>
                                     )}
                                   </div>
@@ -193,7 +194,7 @@ export default function ItineraryView() {
             <aside className="lg:col-span-1">
               <div className="sticky top-20 bg-[var(--color-surface-container-lowest)] rounded-2xl p-5 card-shadow border border-[var(--color-outline-variant)]/30">
                 <h3 className="text-base font-bold text-[var(--color-on-surface)] mb-4 flex items-center gap-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                  <DollarSign size={18} className="text-[var(--color-primary)]" /> Budget
+                  <Wallet size={18} className="text-[var(--color-primary)]" /> Budget ({currency})
                 </h3>
 
                 {/* Progress Bar */}
@@ -211,12 +212,12 @@ export default function ItineraryView() {
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  <BudgetRow label="Total Budget" value={`$${totalBudget.toLocaleString()}`} />
-                  <BudgetRow label="Spent" value={`$${totalSpent.toLocaleString()}`} highlight />
+                  <BudgetRow label="Total Budget" value={fmt(totalBudget)} />
+                  <BudgetRow label="Spent" value={fmt(totalSpent)} highlight />
                   <div className="border-t border-[var(--color-surface-container)] pt-3">
                     <BudgetRow
                       label="Remaining"
-                      value={`$${remaining.toLocaleString()}`}
+                      value={fmt(remaining)}
                       color={remaining < 0 ? 'text-[var(--color-error)]' : 'text-emerald-600'}
                     />
                   </div>
@@ -233,7 +234,7 @@ export default function ItineraryView() {
                           <span className="text-[var(--color-on-surface-variant)] truncate flex-1 mr-2">
                             {s.title || `Section ${i + 1}`}
                           </span>
-                          <span className="font-semibold text-[var(--color-on-surface)] shrink-0">${spent}</span>
+                          <span className="font-semibold text-[var(--color-on-surface)] shrink-0">{fmt(spent)}</span>
                         </div>
                       );
                     })}

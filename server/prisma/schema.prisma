@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("user")
+  avatarUrl    String?
+  bio          String?
+  languagePref String   @default("en")
+  createdAt    DateTime @default(now())
+  trips        Trip[]
+}
+
+model City {
+  id          String  @id @default(cuid())
+  name        String
+  country     String
+  region      String
+  description String?
+  costIndex   Float
+  popularity  Float   @default(0)
+  imageUrl    String?
+  activities  Activity[]
+  stops       Stop[]
+
+  @@unique([name, country])
+}
+
+model Activity {
+  id           String  @id @default(cuid())
+  cityId       String
+  city         City    @relation(fields: [cityId], references: [id])
+  name         String
+  category     String
+  description  String?
+  cost         Float   @default(0)
+  durationMins Int     @default(60)
+  difficulty   String  @default("Easy")
+  imageUrl     String?
+  items        ItineraryItem[]
+}
+
+model Trip {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  coverImage  String?
+  totalBudget Float    @default(0)
+  currency    String   @default("USD")
+  status      String   @default("planning")
+  shareSlug   String?  @unique
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  stops       Stop[]
+}
+
+model Stop {
+  id            String   @id @default(cuid())
+  tripId        String
+  trip          Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  cityId        String?
+  city          City?    @relation(fields: [cityId], references: [id])
+  arrivalDate   DateTime
+  departureDate DateTime
+  sortOrder     Int      @default(0)
+  title         String?
+  budget        Float    @default(0)
+  items         ItineraryItem[]
+}
+
+model ItineraryItem {
+  id         String    @id @default(cuid())
+  stopId     String
+  stop       Stop      @relation(fields: [stopId], references: [id], onDelete: Cascade)
+  activityId String?
+  activity   Activity? @relation(fields: [activityId], references: [id])
+  title      String
+  date       DateTime
+  time       String?
+  cost       Float     @default(0)
+  category   String    @default("activity")
+
+  @@index([stopId])
+}

@@ -14,7 +14,7 @@ const FIELDS = [
 ];
 
 export default function Register() {
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     firstName: '', lastName: '', email: '', phone: '', city: '', country: '', additionalInfo: '', password: '', confirmPassword: '',
@@ -51,10 +51,18 @@ export default function Register() {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    login({ username: form.email, password: form.password });
+    const result = await register({
+      name: `${form.firstName} ${form.lastName}`.trim(),
+      email: form.email,
+      password: form.password,
+    });
+    if (!result.success) {
+      setLoading(false);
+      setErrors({ email: result.error || 'Registration failed' });
+      return;
+    }
     setLoading(false);
-    navigate('/');
+    navigate('/dashboard');
   };
 
   return (

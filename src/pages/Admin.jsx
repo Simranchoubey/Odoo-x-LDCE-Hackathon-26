@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   LineChart, Line, XAxis, YAxis, CartesianGrid, Legend,
@@ -6,12 +6,11 @@ import {
 } from 'recharts';
 import {
   Users, MapPin, Activity, TrendingUp, Shield, Info,
-  MoreVertical, UserCheck, UserX, Trash2, Edit,
 } from 'lucide-react';
 import TopBar from '../components/TopBar';
 import SearchFilterBar from '../components/SearchFilterBar';
 import { analyticsData } from '../data/trips';
-import { users } from '../data/users';
+import { api } from '../api/client';
 
 const TABS = [
   { id: 'analytics', label: 'User Trends & Analytics', icon: TrendingUp },
@@ -20,9 +19,20 @@ const TABS = [
   { id: 'activities', label: 'Popular Activities', icon: Activity },
 ];
 
+const fmtDate = (iso) =>
+  new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
 export default function Admin() {
   const [activeTab, setActiveTab] = useState('analytics');
   const [search, setSearch] = useState('');
+  const [stats, setStats] = useState(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    api('/admin/stats')
+      .then(setStats)
+      .catch((err) => setError(err.message));
+  }, []);
 
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
@@ -43,6 +53,12 @@ export default function Admin() {
               <p className="text-[var(--color-on-surface-variant)]">Manage users, content, and analyze platform trends</p>
             </div>
           </div>
+
+          {error && (
+            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+              Failed to load admin data: {error}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Main Content */}
@@ -75,10 +91,10 @@ export default function Admin() {
               </div>
 
               {/* Tab Content */}
-              {activeTab === 'analytics' && <AnalyticsTab />}
-              {activeTab === 'users' && <UsersTab search={search} />}
-              {activeTab === 'cities' && <CitiesTab />}
-              {activeTab === 'activities' && <ActivitiesTab />}
+              {activeTab === 'analytics' && <AnalyticsTab stats={stats} />}
+              {activeTab === 'users' && <UsersTab users={stats?.users || []} search={search} />}
+              {activeTab === 'cities' && <CitiesTab cities={stats?.topCities || []} />}
+              {activeTab === 'activities' && <ActivitiesTab activities={stats?.topActivities || []} />}
             </div>
 
             {/* Right Info Panel */}
@@ -90,16 +106,18 @@ export default function Admin() {
                     Platform Overview
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { label: 'Total Users', value: '2,847', delta: '+8%' },
-                      { label: 'Active Trips', value: '1,203', delta: '+12%' },
-                      { label: 'Cities', value: '148', delta: '+3%' },
-                      { label: 'Activities', value: '892', delta: '+5%' },
-                    ].map(({ label, value, delta }) => (
+                    {(stats
+                      ? [
+                          { label: 'Total Users', value: String(stats.totals.users) },
+                          { label: 'Total Trips', value: String(stats.totals.trips) },
+                          { label: 'Public Trips', value: String(stats.totals.publicTrips) },
+                          { label: 'New Users (30d)', value: String(stats.totals.newUsers30d) },
+                        ]
+                      : [{ label: 'Loading…', value: '—' }]
+                    ).map(({ label, value }) => (
                       <div key={label} className="bg-[var(--color-surface-container)] rounded-xl p-3">
                         <p className="text-lg font-black text-[var(--color-primary)]" style={{ fontFamily: 'Montserrat, sans-serif' }}>{value}</p>
                         <p className="text-xs text-[var(--color-on-surface-variant)]">{label}</p>
-                        <p className="text-xs text-emerald-600 font-semibold mt-0.5">{delta} this month</p>
                       </div>
                     ))}
                   </div>
@@ -116,10 +134,10 @@ export default function Admin() {
                          activeTab === 'cities' ? 'Popular Cities' : 'Popular Activities'}
                       </p>
                       <p className="text-xs text-[var(--color-on-surface-variant)] leading-relaxed">
-                        {activeTab === 'analytics' ? 'Track user growth, trip trends, and popular destinations over time to make data-driven decisions.' :
-                         activeTab === 'users' ? 'Manage user accounts, update status, and view activity data for all registered travelers.' :
-                         activeTab === 'cities' ? 'Monitor which destinations are trending and how many trips are planned to each city.' :
-                         'Discover which activities are most popular and adjust recommendations accordingly.'}
+                        {activeTab === 'analytics' ? 'Track trip trends and popular destinations over time to make data-driven decisions.' :
+                         activeTab === 'users' ? 'All registered travelers with their roles, trip counts, and join dates — straight from the database.' :
+                         activeTab === 'cities' ? 'Destinations ranked by how many itinerary stops include them.' :
+                         'Activities ranked by how often they are added to itineraries.'}
                       </p>
                     </div>
                   </div>
@@ -133,17 +151,21 @@ export default function Admin() {
   );
 }
 
-function AnalyticsTab() {
+function AnalyticsTab({ stats }) {
+  const summary = stats
+    ? [
+        { label: 'New Users (30d)', value: String(stats.totals.newUsers30d), color: 'text-[var(--color-primary)]' },
+        { label: 'Trips Created', value: String(stats.totals.trips), color: 'text-teal-600' },
+        { label: 'Avg Trips/User', value: String(stats.totals.avgTripsPerUser), color: 'text-purple-600' },
+        { label: 'Itinerary Items', value: String(stats.totals.itineraryItems), color: 'text-amber-600' },
+      ]
+    : [];
+
   return (
     <div className="flex flex-col gap-6">
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          { label: 'New Users (Aug)', value: '350', color: 'text-[var(--color-primary)]' },
-          { label: 'Trips Created', value: '891', color: 'text-teal-600' },
-          { label: 'Avg Trips/User', value: '3.2', color: 'text-purple-600' },
-          { label: 'Revenue', value: '$48K', color: 'text-amber-600' },
-        ].map(({ label, value, color }) => (
+        {(summary.length ? summary : [{ label: 'Loading…', value: '—', color: '' }]).map(({ label, value, color }) => (
           <div key={label} className="bg-[var(--color-surface-container-lowest)] rounded-2xl p-4 card-shadow border border-[var(--color-outline-variant)]/30">
             <p className={`text-2xl font-black ${color}`} style={{ fontFamily: 'Montserrat, sans-serif' }}>{value}</p>
             <p className="text-xs text-[var(--color-on-surface-variant)] mt-0.5">{label}</p>
@@ -166,15 +188,27 @@ function AnalyticsTab() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Pie Chart */}
-        <ChartCard title="🌍 Trip Categories">
+        <ChartCard title="🌍 Trips by Status">
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
-              <Pie data={analyticsData.tripsByCategory} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" paddingAngle={3}>
-                {analyticsData.tripsByCategory.map((entry, i) => (
-                  <Cell key={`cell-${i}`} fill={entry.color} />
+              <Pie
+                data={(stats?.tripsByStatus || []).map((s, i) => ({
+                  name: s.status,
+                  value: s.count,
+                  color: ['#ac3509', '#e0bfb6', '#2dd4bf', '#a78bfa'][i % 4],
+                }))}
+                cx="50%"
+                cy="50%"
+                innerRadius={50}
+                outerRadius={80}
+                dataKey="value"
+                paddingAngle={3}
+              >
+                {(stats?.tripsByStatus || []).map((entry, i) => (
+                  <Cell key={`cell-${i}`} fill={['#ac3509', '#e0bfb6', '#2dd4bf', '#a78bfa'][i % 4]} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid #e0bfb6', fontSize: 12 }} formatter={(v, n) => [`${v}%`, n]} />
+              <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid #e0bfb6', fontSize: 12 }} />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
             </PieChart>
           </ResponsiveContainer>
@@ -183,9 +217,13 @@ function AnalyticsTab() {
         {/* Bar Chart */}
         <ChartCard title="🎯 Popular Activities">
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={analyticsData.popularActivities} layout="vertical" margin={{ left: 60 }}>
+            <BarChart
+              data={(stats?.topActivities || []).map((a) => ({ name: a.name.split(' ').slice(0, 2).join(' '), count: a.usage }))}
+              layout="vertical"
+              margin={{ left: 60 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#e9e8e5" horizontal={false} />
-              <XAxis type="number" tick={{ fontSize: 11, fill: '#59413a' }} />
+              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: '#59413a' }} />
               <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#59413a' }} width={60} />
               <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid #e0bfb6', fontSize: 12 }} />
               <Bar dataKey="count" fill="#ac3509" radius={[0, 6, 6, 0]} />
@@ -197,57 +235,46 @@ function AnalyticsTab() {
       {/* Top Cities list */}
       <ChartCard title="🏙 Top Destinations">
         <div className="flex flex-col gap-2">
-          {analyticsData.topCities.map(({ city, trips, growth }, i) => (
-            <div key={city} className="flex items-center gap-3">
+          {(stats?.topCities || []).map(({ name, country, visits }, i) => (
+            <div key={`${name}-${country}`} className="flex items-center gap-3">
               <span className="text-xs font-bold text-[var(--color-on-surface-variant)]/60 w-4">{i + 1}</span>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-semibold text-[var(--color-on-surface)]">{city}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-emerald-600 font-semibold">{growth}</span>
-                    <span className="text-sm font-bold text-[var(--color-primary)]">{trips}</span>
-                  </div>
+                  <span className="text-sm font-semibold text-[var(--color-on-surface)]">{name}, {country}</span>
+                  <span className="text-sm font-bold text-[var(--color-primary)]">{visits}</span>
                 </div>
                 <div className="h-1.5 bg-[var(--color-surface-container)] rounded-full">
                   <div
                     className="h-full bg-[var(--color-primary)] rounded-full"
-                    style={{ width: `${(trips / analyticsData.topCities[0].trips) * 100}%` }}
+                    style={{ width: `${(visits / (stats.topCities[0].visits || 1)) * 100}%` }}
                   />
                 </div>
               </div>
             </div>
           ))}
+          {!stats && <p className="text-sm text-[var(--color-on-surface-variant)]">Loading…</p>}
         </div>
       </ChartCard>
     </div>
   );
 }
 
-function UsersTab({ search }) {
-  const [userList, setUserList] = useState(users);
-
-  const filtered = userList.filter(
+function UsersTab({ users, search }) {
+  const filtered = users.filter(
     (u) =>
       !search ||
-      `${u.firstName} ${u.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase())
   );
-
-  const toggleStatus = (id) => {
-    setUserList((prev) =>
-      prev.map((u) => u.id === id ? { ...u, status: u.status === 'active' ? 'inactive' : 'active' } : u)
-    );
-  };
 
   return (
     <div className="bg-[var(--color-surface-container-lowest)] rounded-2xl border border-[var(--color-outline-variant)]/30 card-shadow overflow-hidden">
       {/* Table Header */}
       <div className="grid grid-cols-12 gap-3 px-5 py-3 border-b border-[var(--color-surface-container)] bg-[var(--color-surface-container-low)]">
-        <div className="col-span-4 text-xs font-bold text-[var(--color-on-surface-variant)] uppercase tracking-wider">User</div>
-        <div className="col-span-3 text-xs font-bold text-[var(--color-on-surface-variant)] uppercase tracking-wider hidden sm:block">Location</div>
-        <div className="col-span-2 text-xs font-bold text-[var(--color-on-surface-variant)] uppercase tracking-wider">Status</div>
+        <div className="col-span-5 text-xs font-bold text-[var(--color-on-surface-variant)] uppercase tracking-wider">User</div>
+        <div className="col-span-2 text-xs font-bold text-[var(--color-on-surface-variant)] uppercase tracking-wider">Trips</div>
+        <div className="col-span-3 text-xs font-bold text-[var(--color-on-surface-variant)] uppercase tracking-wider hidden sm:block">Joined</div>
         <div className="col-span-2 text-xs font-bold text-[var(--color-on-surface-variant)] uppercase tracking-wider hidden md:block">Role</div>
-        <div className="col-span-1 text-xs font-bold text-[var(--color-on-surface-variant)] uppercase tracking-wider">•••</div>
       </div>
 
       {filtered.length === 0 ? (
@@ -255,26 +282,22 @@ function UsersTab({ search }) {
       ) : (
         filtered.map((user) => (
           <div key={user.id} className="grid grid-cols-12 gap-3 px-5 py-4 border-b border-[var(--color-surface-container)] last:border-b-0 hover:bg-[var(--color-surface-container-low)] transition-colors items-center">
-            <div className="col-span-4 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-[var(--color-surface-container)]">
-                <img src={user.avatar} alt={user.firstName} className="w-full h-full object-cover" />
+            <div className="col-span-5 flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-[var(--color-surface-container)] flex items-center justify-center">
+                {user.avatarUrl ? (
+                  <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-sm font-bold text-[var(--color-primary)]">{user.name?.[0]?.toUpperCase()}</span>
+                )}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-[var(--color-on-surface)] truncate">{user.firstName} {user.lastName}</p>
+                <p className="text-sm font-semibold text-[var(--color-on-surface)] truncate">{user.name}</p>
                 <p className="text-xs text-[var(--color-on-surface-variant)] truncate">{user.email}</p>
               </div>
             </div>
-            <div className="col-span-3 hidden sm:block text-sm text-[var(--color-on-surface-variant)] truncate">
-              {user.city}, {user.country}
-            </div>
-            <div className="col-span-2">
-              <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                user.status === 'active'
-                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                  : 'bg-[var(--color-surface-container)] text-[var(--color-on-surface-variant)] border border-[var(--color-outline-variant)]/50'
-              }`}>
-                {user.status}
-              </span>
+            <div className="col-span-2 text-sm font-semibold text-[var(--color-on-surface)]">{user.tripsCount}</div>
+            <div className="col-span-3 hidden sm:block text-sm text-[var(--color-on-surface-variant)]">
+              {fmtDate(user.joinedAt)}
             </div>
             <div className="col-span-2 hidden md:block">
               <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
@@ -285,15 +308,6 @@ function UsersTab({ search }) {
                 {user.role}
               </span>
             </div>
-            <div className="col-span-1 flex items-center gap-1">
-              <button
-                onClick={() => toggleStatus(user.id)}
-                className="p-1.5 rounded-lg hover:bg-[var(--color-surface-container)] text-[var(--color-on-surface-variant)] hover:text-[var(--color-on-surface)] transition-all"
-                aria-label={user.status === 'active' ? 'Deactivate user' : 'Activate user'}
-              >
-                {user.status === 'active' ? <UserX size={14} /> : <UserCheck size={14} />}
-              </button>
-            </div>
           </div>
         ))
       )}
@@ -301,54 +315,54 @@ function UsersTab({ search }) {
   );
 }
 
-function CitiesTab() {
-  const { topCities } = analyticsData;
+function CitiesTab({ cities }) {
   return (
     <div className="flex flex-col gap-3">
-      {topCities.map(({ city, trips, growth }, i) => (
-        <div key={city} className="flex items-center gap-4 bg-[var(--color-surface-container-lowest)] rounded-2xl p-4 card-shadow border border-[var(--color-outline-variant)]/30">
-          <div className="w-8 h-8 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)] font-bold text-sm shrink-0">
-            {i + 1}
+      {cities.length === 0 && <p className="text-sm text-[var(--color-on-surface-variant)]">Loading…</p>}
+      {cities.map(({ name, country, visits }) => (
+        <div key={`${name}-${country}`} className="flex items-center gap-4 bg-[var(--color-surface-container-lowest)] rounded-2xl p-4 card-shadow border border-[var(--color-outline-variant)]/30">
+          <div className="w-10 h-10 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)] font-bold text-sm shrink-0">
+            <MapPin size={16} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-base font-bold text-[var(--color-on-surface)]" style={{ fontFamily: 'Montserrat, sans-serif' }}>{city}</p>
+            <p className="text-base font-bold text-[var(--color-on-surface)]" style={{ fontFamily: 'Montserrat, sans-serif' }}>{name}, {country}</p>
             <div className="flex items-center gap-2 mt-1">
               <div className="flex-1 h-2 bg-[var(--color-surface-container)] rounded-full">
                 <div
                   className="h-full bg-[var(--color-primary)] rounded-full"
-                  style={{ width: `${(trips / topCities[0].trips) * 100}%` }}
+                  style={{ width: `${(visits / (cities[0]?.visits || 1)) * 100}%` }}
                 />
               </div>
-              <span className="text-xs text-[var(--color-on-surface-variant)] shrink-0">{trips} trips</span>
+              <span className="text-xs text-[var(--color-on-surface-variant)] shrink-0">{visits} stops</span>
             </div>
           </div>
-          <span className="text-sm font-bold text-emerald-600 shrink-0">{growth}</span>
         </div>
       ))}
     </div>
   );
 }
 
-function ActivitiesTab() {
-  const { popularActivities } = analyticsData;
-  const max = popularActivities[0].count;
+function ActivitiesTab({ activities }) {
+  const max = activities[0]?.usage || 1;
   return (
     <div className="flex flex-col gap-3">
-      {popularActivities.map(({ name, count }, i) => (
+      {activities.length === 0 && <p className="text-sm text-[var(--color-on-surface-variant)]">Loading…</p>}
+      {activities.map(({ name, category, city, usage }) => (
         <div key={name} className="flex items-center gap-4 bg-[var(--color-surface-container-lowest)] rounded-2xl p-4 card-shadow border border-[var(--color-outline-variant)]/30">
-          <div className="w-8 h-8 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)] font-bold text-sm shrink-0">
-            {i + 1}
+          <div className="w-10 h-10 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)] font-bold text-xs shrink-0 uppercase">
+            {category?.slice(0, 2)}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-base font-bold text-[var(--color-on-surface)]" style={{ fontFamily: 'Montserrat, sans-serif' }}>{name}</p>
+            <p className="text-base font-bold text-[var(--color-on-surface)] truncate" style={{ fontFamily: 'Montserrat, sans-serif' }}>{name}</p>
+            <p className="text-xs text-[var(--color-on-surface-variant)]">{city} · {category}</p>
             <div className="flex items-center gap-2 mt-1">
               <div className="flex-1 h-2 bg-[var(--color-surface-container)] rounded-full">
                 <div
                   className="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-container)] rounded-full"
-                  style={{ width: `${(count / max) * 100}%` }}
+                  style={{ width: `${(usage / max) * 100}%` }}
                 />
               </div>
-              <span className="text-xs text-[var(--color-on-surface-variant)] shrink-0">{count.toLocaleString()}</span>
+              <span className="text-xs text-[var(--color-on-surface-variant)] shrink-0">{usage}×</span>
             </div>
           </div>
         </div>
