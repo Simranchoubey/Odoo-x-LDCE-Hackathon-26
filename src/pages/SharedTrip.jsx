@@ -3,9 +3,11 @@ import { useParams } from 'react-router-dom';
 import { Globe2, MapPin, Calendar, Clock, Copy, Check, Frown } from 'lucide-react';
 import { PrimaryButton, SecondaryButton } from '../components/Button';
 import { api, getToken } from '../api/client';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function SharedTrip() {
   const { slug } = useParams();
+  const { fmt } = useCurrency();
   const [trip, setTrip] = useState(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
@@ -91,7 +93,7 @@ export default function SharedTrip() {
                       </p>
                     </div>
                     <span className="text-sm font-semibold text-[var(--color-primary)]">
-                      ${activity.expense}
+                      {fmt(activity.expense)}
                     </span>
                   </li>
                 ))

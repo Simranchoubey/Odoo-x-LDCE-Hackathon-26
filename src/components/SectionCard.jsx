@@ -1,6 +1,7 @@
 import { useRef } from 'react';
-import { GripVertical, Trash2, Calendar, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
+import { GripVertical, Trash2, Calendar, ChevronDown, ChevronUp, Wallet } from 'lucide-react';
 import { useState } from 'react';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function SectionCard({
   section,
@@ -10,6 +11,7 @@ export default function SectionCard({
   dragHandleProps = {},
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  const { fmt, currency } = useCurrency();
 
   const handleField = (field, value) => {
     onUpdate?.({ ...section, [field]: value });
@@ -103,7 +105,7 @@ export default function SectionCard({
             </div>
             <div>
               <label className="block text-xs font-semibold text-[var(--color-on-surface-variant)] uppercase tracking-wider mb-1.5">
-                <DollarSign size={11} className="inline mr-1" />Budget (USD)
+                <Wallet size={11} className="inline mr-1" />Budget ({currency})
               </label>
               <input
                 type="number"
@@ -127,7 +129,7 @@ export default function SectionCard({
                   <div key={act.id} className="flex items-center justify-between px-3 py-2 bg-[var(--color-surface-container)] rounded-xl">
                     <span className="text-sm text-[var(--color-on-surface)]">{act.name}</span>
                     {act.expense > 0 && (
-                      <span className="text-xs font-semibold text-[var(--color-primary)]">${act.expense}</span>
+                      <span className="text-xs font-semibold text-[var(--color-primary)]">{fmt(act.expense)}</span>
                     )}
                   </div>
                 ))}

@@ -62,7 +62,7 @@ export default function Register() {
       return;
     }
     setLoading(false);
-    navigate('/');
+    navigate('/dashboard');
   };
 
   return (

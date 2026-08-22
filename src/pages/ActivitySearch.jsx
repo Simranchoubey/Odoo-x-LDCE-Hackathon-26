@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Search, SlidersHorizontal, Plus, Star, Clock, DollarSign } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Search, Plus, Clock } from 'lucide-react';
 import TopBar from '../components/TopBar';
 import SearchFilterBar from '../components/SearchFilterBar';
-import { activities } from '../data/activities';
-import { cities } from '../data/cities';
+import { api } from '../api/client';
+import { useCurrency } from '../context/CurrencyContext';
 import { useTrips } from '../context/TripContext';
 
 const CATEGORY_OPTIONS = [
@@ -16,7 +16,6 @@ const CATEGORY_OPTIONS = [
 ];
 
 const SORT_OPTIONS = [
-  { value: 'rating', label: 'Top Rated' },
   { value: 'price_asc', label: 'Price: Low–High' },
   { value: 'price_desc', label: 'Price: High–Low' },
   { value: 'name', label: 'Name A–Z' },
@@ -29,11 +28,12 @@ const DIFFICULTY_OPTIONS = [
 ];
 
 function ActivityRow({ activity, onAdd, added }) {
+  const { fmt } = useCurrency();
   return (
     <div className="group flex items-center gap-4 bg-[var(--color-surface-container-lowest)] rounded-2xl p-4 border border-[var(--color-outline-variant)]/30 card-shadow hover:card-shadow-hover transition-all duration-200">
       <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden">
         <img
-          src={activity.image}
+          src={activity.imageUrl}
           alt={activity.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
@@ -51,13 +51,13 @@ function ActivityRow({ activity, onAdd, added }) {
         <p className="text-xs text-[var(--color-on-surface-variant)] mb-2 line-clamp-1">{activity.description}</p>
         <div className="flex flex-wrap gap-3 text-xs text-[var(--color-on-surface-variant)]">
           <span className="flex items-center gap-1">
-            <Star size={11} className="text-amber-400" fill="currentColor" /> {activity.rating}
+            <MapPin size={11} /> {activity.city?.name}, {activity.city?.country}
           </span>
           <span className="flex items-center gap-1">
-            <Clock size={11} /> {activity.duration}
+            <Clock size={11} /> {formatDuration(activity.durationMins)}
           </span>
           <span className="flex items-center gap-1">
-            <DollarSign size={11} /> ${activity.cost}
+            {fmt(activity.cost)}
           </span>
           <span className="flex items-center gap-1">
             <span className={`w-2 h-2 rounded-full ${activity.difficulty === 'Easy' ? 'bg-emerald-400' : activity.difficulty === 'Moderate' ? 'bg-amber-400' : 'bg-red-400'}`} />
@@ -82,12 +82,21 @@ function ActivityRow({ activity, onAdd, added }) {
 
 export default function ActivitySearch() {
   const { trips } = useTrips();
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [sortValue, setSortValue] = useState('rating');
+  const [sortValue, setSortValue] = useState('price_asc');
   const [difficultyFilter, setDifficultyFilter] = useState('');
   const [addedIds, setAddedIds] = useState([]);
   const [addedNotice, setAddedNotice] = useState('');
+
+  useEffect(() => {
+    api('/activities')
+      .then(setActivities)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleAdd = (activity) => {
     if (addedIds.includes(activity.id)) return;

@@ -17,10 +17,11 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useCurrency } from '../context/CurrencyContext';
 import Modal from './Modal';
 
 const navLinks = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { to: '/trips', label: 'My Trips', icon: MapPin },
   { to: '/search', label: 'Explore', icon: Search },
   { to: '/community', label: 'Community', icon: Users },
@@ -28,7 +29,8 @@ const navLinks = [
 ];
 
 export default function TopBar() {
-  const { user, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { currency, setCurrency } = useCurrency();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -56,7 +58,7 @@ export default function TopBar() {
       <header className="fixed top-0 w-full z-50 glass border-b border-[var(--color-outline-variant)]/40 shadow-sm">
         <div className="max-w-7xl mx-auto px-5 lg:px-16 h-16 flex items-center gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0">
+          <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-2 shrink-0">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-container)] flex items-center justify-center shadow-sm">
               <Globe2 size={18} className="text-white" />
             </div>
@@ -101,6 +103,18 @@ export default function TopBar() {
             <Shield size={14} />
             Admin
           </NavLink>
+
+          {/* Currency selector */}
+          <select
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            aria-label="Display currency"
+            className="hidden sm:block text-xs font-semibold px-2 py-2 rounded-xl bg-[var(--color-surface-container)] text-[var(--color-on-surface)] border border-[var(--color-outline-variant)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 cursor-pointer"
+          >
+            {['USD', 'INR', 'EUR', 'GBP', 'JPY', 'AED'].map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
 
           {/* Notifications */}
           <button

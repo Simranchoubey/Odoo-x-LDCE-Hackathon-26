@@ -30,7 +30,7 @@ export default function Login() {
     setLoading(true);
     const result = await login(form);
     setLoading(false);
-    if (result.success) navigate('/');
+    if (result.success) navigate('/dashboard');
     else setLoginError(result.error || 'Invalid credentials.');
   };
 

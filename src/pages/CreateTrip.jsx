@@ -5,9 +5,11 @@ import TopBar from '../components/TopBar';
 import { PrimaryButton, SecondaryButton } from '../components/Button';
 import { useTrips } from '../context/TripContext';
 import { api } from '../api/client';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function CreateTrip() {
   const { createTrip } = useTrips();
+  const { fmt } = useCurrency();
   const navigate = useNavigate();
 
   const [cities, setCities] = useState([]);
@@ -228,7 +230,7 @@ export default function CreateTrip() {
                     </div>
                     <div className="bg-[var(--color-surface-container-lowest)] p-3 flex items-center justify-between">
                       <span className="text-xs font-medium text-[var(--color-on-surface-variant)]">
-                        {activity.durationMins >= 60 ? `${Math.round(activity.durationMins / 60)}h` : `${activity.durationMins}m`} · ${activity.cost}
+                        {activity.durationMins >= 60 ? `${Math.round(activity.durationMins / 60)}h` : `${activity.durationMins}m`} · {fmt(activity.cost)}
                       </span>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         selected ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]' : 'bg-[var(--color-surface-container)] text-[var(--color-on-surface-variant)]'
