@@ -98,7 +98,7 @@ npm install
 #   JWT_SECRET="<any-long-random-string>"
 #   PORT=4000
 npx prisma migrate dev         # creates tables
-npm run db:seed                # seeds cities, activities, demo user + 6 sample trips
+npm run db:seed                # seeds cities, activities, 8 users + 22 sample trips (8 public)
 npm run dev                    # API on http://localhost:4000
 
 # ---------- Frontend (new terminal) ----------
@@ -107,7 +107,7 @@ npm install
 npm run dev                    # http://localhost:5173 (proxies /api -> :4000)
 ```
 
-**Demo account:** `demo@globetrotter.app` / `demo1234` — comes with 6 seeded trips.
+**Demo account:** `demo@globetrotter.app` / `demo1234` — comes with 6 seeded trips. All seeded users share the same password (`demo1234`).
 
 ---
 
@@ -115,9 +115,20 @@ npm run dev                    # http://localhost:5173 (proxies /api -> :4000)
 
 Running `npm run db:seed` fills the database with everything needed to explore the app immediately:
 
-**Demo user**
-- Email: `demo@globetrotter.app` · Password: `demo1234`
-- Name: *Demo Traveler* — owns all 6 sample trips below
+**8 users** (all password `demo1234`)
+
+| Email | Name | Persona |
+|---|---|---|
+| `demo@globetrotter.app` | Demo Traveler | General demo account, 6 trips |
+| `aria.winters@example.com` | Aria Winters | Solo backpacker |
+| `marco.bellini@example.com` | Marco Bellini | Food-first traveler |
+| `priya.sharma@example.com` | Priya Sharma | Adventure junkie (INR/CHF/NZD budgets) |
+| `tom.okafor@example.com` | Tom Okafor | Photographer, desert & aurora trips |
+| `elena.petrova@example.com` | Elena Petrova | History teacher, heritage itineraries |
+| `jack.thompson@example.com` | Jack Thompson | Diver, reef & balloon trips |
+| `sofia.mendes@example.com` | Sofia Mendes | Remote designer / digital nomad |
+
+Multiple currencies (USD, EUR, CHF, NZD, AUD, INR, TRY) are exercised across user budgets.
 
 **20 cities** (catalog for city search & stops)
 
@@ -150,6 +161,22 @@ Each activity has a category, cost ($), duration (minutes), difficulty (Easy / M
 | Kyoto Retreat | Kyoto, Japan | Oct 11–14, 2026 | upcoming | $1,800 |
 | Bali Beach Escape | Bali, Indonesia | Nov 20–28, 2026 | upcoming | $2,000 |
 | Morocco Souk Adventure | Marrakech, Morocco | Dec 5–10, 2026 | planning | $1,500 |
+
+**6 demo trips** (owned by the demo user, with stops + itinerary items) + **16 community trips** across the 7 other users.
+
+**Public / shareable trips** (visible via `/trip/:slug`, with a "Copy Trip" flow):
+
+| Trip | Owner | Share URL |
+|---|---|---|
+| Paris Getaway | demo | `/trip/paris-getaway-2026` |
+| Santorini Honeymoon | demo | auto-generated slug |
+| Southeast Asia Loop | Aria | `/trip/sea-backpacker-loop` |
+| Iberian Tapas Trail | Marco | `/trip/iberian-tapas-trail` |
+| Swiss Alps Adventure | Priya | `/trip/swiss-alps-adventure` |
+| Sahara Expedition | Tom | `/trip/sahara-expedition` |
+| Classical Italy Grand Tour | Elena | `/trip/classical-italy-tour` |
+| Barrier Reef Liveaboard | Jack | `/trip/barrier-reef-liveaboard` |
+| Morocco Remote Retreat | Sofia | `/trip/morocco-remote-retreat` |
 
 Trips include real itinerary items (e.g. Fushimi Inari Shrine, Central Park Bike Tour, Monkey Forest Sanctuary) so the Itinerary View, Budget Breakdown, and Calendar screens show live data on first login. The seed script is idempotent — re-running it won't duplicate cities or trips.
 

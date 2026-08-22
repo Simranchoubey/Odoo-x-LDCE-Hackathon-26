@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, Plus, Clock } from 'lucide-react';
+import { Search, Plus, Clock, MapPin } from 'lucide-react';
 import TopBar from '../components/TopBar';
 import SearchFilterBar from '../components/SearchFilterBar';
 import { api } from '../api/client';
@@ -26,6 +26,14 @@ const DIFFICULTY_OPTIONS = [
   { value: 'Moderate', label: 'Moderate' },
   { value: 'Challenging', label: 'Challenging' },
 ];
+
+const formatDuration = (mins) => {
+  if (mins == null) return '';
+  if (mins < 60) return `${mins}m`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m ? `${h}h ${m}m` : `${h}h`;
+};
 
 function ActivityRow({ activity, onAdd, added }) {
   const { fmt } = useCurrency();
@@ -106,14 +114,14 @@ export default function ActivitySearch() {
   };
 
   let filtered = activities.filter((a) => {
-    const matchSearch = !search || a.name.toLowerCase().includes(search.toLowerCase()) || a.city.toLowerCase().includes(search.toLowerCase()) || a.country.toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    const matchSearch = !search || a.name.toLowerCase().includes(q) || a.city?.name?.toLowerCase().includes(q) || a.city?.country?.toLowerCase().includes(q);
     const matchCategory = !categoryFilter || a.category === categoryFilter;
     const matchDifficulty = !difficultyFilter || a.difficulty === difficultyFilter;
     return matchSearch && matchCategory && matchDifficulty;
   });
 
-  if (sortValue === 'rating') filtered = [...filtered].sort((a, b) => b.rating - a.rating);
-  else if (sortValue === 'price_asc') filtered = [...filtered].sort((a, b) => a.cost - b.cost);
+  if (sortValue === 'price_asc') filtered = [...filtered].sort((a, b) => a.cost - b.cost);
   else if (sortValue === 'price_desc') filtered = [...filtered].sort((a, b) => b.cost - a.cost);
   else if (sortValue === 'name') filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
 

@@ -37,13 +37,16 @@ function serialize(t, spent) {
     image: t.coverImage || firstCity?.imageUrl || null,
     destination: firstCity ? `${firstCity.name}, ${firstCity.country}` : '',
     budget: { total: t.totalBudget, spent, currency: t.currency },
+
     sections: t.stops.map((s) => ({
       id: s.id,
-      title: s.title || `${s.city.name}`,
+      title: s.title || (s.city ? `${s.city.name}` : `Stop ${s.sortOrder + 1}`),
       startDate: new Date(s.arrivalDate).toISOString().slice(0, 10),
       endDate: new Date(s.departureDate).toISOString().slice(0, 10),
       budget: s.budget,
-      city: { id: s.city.id, name: s.city.name, country: s.city.country, image: s.city.imageUrl },
+      city: s.city
+        ? { id: s.city.id, name: s.city.name, country: s.city.country, image: s.city.imageUrl }
+        : null,
       activities: s.items.map((i) => ({
         id: i.id,
         name: i.title,

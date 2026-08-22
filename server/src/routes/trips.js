@@ -31,13 +31,15 @@ function serializeItem(i) {
 function serializeStop(s) {
   return {
     id: s.id,
-    title: s.title || `${s.city.name}`,
+    title: s.title || (s.city ? `${s.city.name}` : `Stop ${s.sortOrder + 1}`),
     description: '',
     startDate: day(s.arrivalDate),
     endDate: day(s.departureDate),
     budget: s.budget,
     sortOrder: s.sortOrder,
-    city: { id: s.city.id, name: s.city.name, country: s.city.country, image: s.city.imageUrl },
+    city: s.city
+      ? { id: s.city.id, name: s.city.name, country: s.city.country, image: s.city.imageUrl }
+      : null,
     activities: s.items.map(serializeItem),
   };
 }
@@ -159,15 +161,17 @@ router.post('/:id/stops', async (req, res, next) => {
     const trip = await findOwnedTrip(req, res);
     if (!trip) return;
     const { cityId, arrivalDate, departureDate, title } = req.body || {};
-    if (!cityId || !arrivalDate || !departureDate) {
-      return res.status(400).json({ error: 'City, arrival date and departure date are required' });
+    if (!arrivalDate || !departureDate) {
+      return res.status(400).json({ error: 'Arrival date and departure date are required' });
     }
-    const city = await prisma.city.findUnique({ where: { id: cityId } });
-    if (!city) return res.status(404).json({ error: 'City not found' });
+    if (cityId) {
+      const city = await prisma.city.findUnique({ where: { id: cityId } });
+      if (!city) return res.status(404).json({ error: 'City not found' });
+    }
     const stop = await prisma.stop.create({
       data: {
         tripId: trip.id,
-        cityId,
+        cityId: cityId || null,
         title,
         arrivalDate: parseDate(arrivalDate),
         departureDate: parseDate(departureDate),
